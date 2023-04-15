@@ -87,17 +87,20 @@ def index_task():
     allTask = session.query(Task).all()
     return render_template("index.html", allTask=allTask)
 
-@app.route("/add-task", methods=["POST"])
+@app.route("/add-task", methods=["POST", "GET"])
 def add_task():
-    name = request.form["name"]
-    description = request.form["description"]
-    status = request.form["status"]
+    if request.method == "POST":
+        name = request.form["name"]
+        description = request.form["description"]
+        status = request.form["status"]
 
-    newTask = Task(name, description, status)
-    session.add(newTask)
-    session.commit()
+        newTask = Task(name, description, status)
+        session.add(newTask)
+        session.commit()
 
-    return jsonify({"msg": "Task added successfully"}), 200
+        return jsonify({"msg": "Task added successfully"}), 200
+    else:
+        return render_template("add_task.html")
 
 def edit_task(id):
     task = session.query(Task).filter_by(id=id).first()

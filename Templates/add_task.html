@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>To Do Lists</title>
+        <title>Add Tasks</title>
         <!-- Include Bootstrap CSS -->
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
         <style>
@@ -17,50 +17,63 @@
     </head>
     <body>
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand display-1 ml-5" href="#">To-Do List</a>
+            <a class="navbar-brand display-1 ml-5" href="/">To-Do List</a>
             <a class="nav-link" href="#" id="logoutButton">Logout</a>
         </nav>
 
         <div class="container mt-4">
-            {% for task in allTask %}
-                <h2>{{ task.name }}</h2>
-                <p>{{ task.description }}</p>
-                <p>{{ task.status }}</p>
-            {% endfor %}
+            <form id="addTaskForm">
+                <div class="form-group">
+                    <label for="name">Task Name</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Task Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                </div>
+                <button class="btn btn-primary" id="cancelButton">Cancel</button>
+                <button type="submit"  class="btn btn-primary">Save</button>
+            </form>
         </div>
 
-        <button id="addTaskButton" class="btn btn-primary floating-button">
-            <i class="fas fa-plus"></i>
-        </button>
-
+        
         <!-- Include Bootstrap, jQuery, and Font Awesome JavaScript -->
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
         <script>
             $(document).ready(function () {
-                $('#addTaskButton').on('click', function (event) {
-                    document.location.href = '/add-task';
-                });
-
-                $('#logoutButton').on('click', function (event) {
+                $('#addTaskForm').on('submit', function (event) {
                     event.preventDefault();
+                    var name = $('#name').val();
+                    var description = $('#description').val();
+                    var csrfToken = '{{ csrf_token() }}'
                     $.ajax({
-                        url: '/logout',
-                        method: 'get',
+                        url: '/add-task',
+                        method: 'post',
+                        data: {
+                            name: name,
+                            description: description,
+                            status: false
+                        },
+                        headers: {
+                        'X-CSRFToken': csrfToken
+                        },
                         success: function (response) {
-                            // delete access_token_cookie
-                            document.cookie = "access_token_cookie=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-                            Swal.fire({title: 'Success!', text: 'Logged out successfully!', icon: 'success', confirmButtonText: 'OK'});
-                            // Reload the page
+                            Swal.fire({title: 'Success!', text: 'Task added successfully!', icon: 'success', confirmButtonText: 'OK'});
                             setTimeout(function () {
-                                location.reload();
+                                document.location.href = '/';
                             }, 1500);
                         },
                         error: function (error) {
                             Swal.fire({title: 'Error!', text: error.responseJSON.msg, icon: 'error', confirmButtonText: 'OK'});
                         }
                     });
+                });
+
+                $('#cancelButton').on('click', function (event) {
+                    event.preventDefault();
+                    document.location.href = '/';
                 });
             });
         </script>
