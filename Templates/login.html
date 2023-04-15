@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Login</h1>
+    <form id="loginForm" action="/login" method="post">
+        <input type="email" id="email" name="email" placeholder="Email" required>
+        <input type="password" id="password" name="password" placeholder="Password" required>
+        <button type="submit">Login</button>
+    </form>
+    <!-- Bootstrap alerts container -->
+    <div id="alertsContainer" class="mt-3"></div>
+    <script>
+        $(document).ready(function() {
+            $('#loginForm').on('submit', function(event) {
+                event.preventDefault();
+                var email = $('#email').val();
+                var password = $('#password').val();
+                $.ajax({
+                    url: '/login',
+                    method: 'post',
+                    data: {
+                        email: email,
+                        password: password
+                    },
+                    success: function(response) {
+                        $('#alertsContainer').html('<div class="alert alert-success" role="alert">Login successful</div>');
+                        setTimeout(function() {
+                            window.location.href = '/';
+                        }, 2000);
+                        document.cookie = "access_token_cookie=" + response.access_token;
+
+                    },
+                    error: function(error) {
+                        console.log(error);
+                        $('#alertsContainer').html('<div class="alert alert-danger" role="alert">Login unsuccessful: ' + error.responseJSON.msg + '</div>');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
