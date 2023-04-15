@@ -84,15 +84,12 @@ def logout():
     current_user = get_jwt_identity()
     return jsonify(logged_out_as=current_user), 200
 
-@csrf.exempt
 def index_task():
     allTask = session.query(Task).all()
     return render_template("index.html", allTask=allTask)
 
 @app.route("/add-task", methods=["POST"])
-@jwt_required()
 def add_task():
-    current_user = get_jwt_identity()
     name = request.form["name"]
     description = request.form["description"]
     status = request.form["status"]
@@ -102,6 +99,32 @@ def add_task():
     session.commit()
 
     return jsonify({"msg": "Task added successfully"}), 200
+
+def edit_task(id):
+    task = session.query(Task).filter_by(id=id).first()
+    return render_template("edit.html", task=task)
+
+@app.route("/update-task/<int:id>", methods=["POST"])
+def update_task(id):
+    name = request.form["name"]
+    description = request.form["description"]
+    status = request.form["status"]
+
+    task = session.query(Task).filter_by(id=id).first()
+    task.name = name
+    task.description = description
+    task.status = status
+    session.commit()
+
+    return jsonify({"msg": "Task updated successfully"}), 200
+
+@app.route("/delete-task/<int:id>", methods=["POST"])
+def delete_task(id):
+    task = session.query(Task).filter_by(id=id).first()
+    session.delete(task)
+    session.commit()
+
+    return jsonify({"msg": "Task deleted successfully"}), 200
 
 if __name__ == "__main__":
     app.run(debug=True)

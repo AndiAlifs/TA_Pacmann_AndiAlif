@@ -67,14 +67,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
     <script>
         $(document).ready(function() {
-            // When the add task button is clicked, submit the form
             $('#submitTask').on('click', function(event) {
                 event.preventDefault();
-                // Get the form data
                 var name = $('#name').val();
                 var description = $('#description').val();
-                var csrfToken = '{{ csrf_token() }}'
-                // Make a POST request to the add task endpoint
                 $.ajax({
                     url: '/add-task',
                     method: 'post',
@@ -82,9 +78,6 @@
                         name: name,
                         description: description,
                         status: false
-                    },
-                    headers: {
-                        'X-CSRFToken': csrfToken
                     },
                     success: function(response) {
                         Swal.fire({
@@ -96,7 +89,7 @@
                         // Reload the page
                         setTimeout(function() {
                             location.reload();
-                        }, 1000);
+                        }, 1500);
                     },
                     error: function(error) {
                         Swal.fire({
