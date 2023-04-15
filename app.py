@@ -69,13 +69,12 @@ def login():
         if foundEmail is None:
             return jsonify({"msg": "Email not found"}), 401
         if foundEmail.password != password:
-            return jsonify({"msg": "Bad password"}), 401
+            return jsonify({"msg": "Password wrong"}), 401
 
         access_token = create_access_token(identity=email)
         return jsonify(access_token=access_token), 200
     else:
         return login_page()
-
 
 @app.route("/logout", methods=["GET"])
 @jwt_required()
