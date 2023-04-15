@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request, render_template, redirect, url_for
 from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, jwt_required, JWTManager
+from flask_wtf.csrf import CSRFProtect
 
 from flask_sqlalchemy import SQLAlchemy
 
@@ -13,8 +14,12 @@ from Model.Task import Task
 import env # This is the file where I store my environment variables
 
 app = Flask(__name__)
+app.config["SECRET_KEY"] = env.SECRET_KEY
 app.template_folder = "templates"
 app.static_folder = "static"
+
+csrf = CSRFProtect()
+csrf.init_app(app)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = env.DATABASE_URL
 
@@ -52,7 +57,6 @@ def register_page():
     return render_template("register.html")
 
 def login_page():
-    allUsers = session.query(User).all()
     return render_template("login.html")
     
 @app.route("/login", methods=["POST", "GET"])
@@ -72,15 +76,6 @@ def login():
     else:
         return login_page()
 
-# Protect a route with jwt_required, which will kick out requests
-# without a valid JWT present.
-@app.route("/protected", methods=["GET"])
-@jwt_required()
-def protected():
-    # Access the identity of the current user with get_jwt_identity
-    current_user = get_jwt_identity()
-    return jsonify(logged_in_as=current_user), 200
-
 
 @app.route("/logout", methods=["GET"])
 @jwt_required()
@@ -89,12 +84,24 @@ def logout():
     current_user = get_jwt_identity()
     return jsonify(logged_out_as=current_user), 200
 
+@csrf.exempt
 def index_task():
     allTask = session.query(Task).all()
-    for task in allTask:
-        print(task.serialize())
     return render_template("index.html", allTask=allTask)
 
+@app.route("/add-task", methods=["POST"])
+@jwt_required()
+def add_task():
+    current_user = get_jwt_identity()
+    name = request.form["name"]
+    description = request.form["description"]
+    status = request.form["status"]
+
+    newTask = Task(name, description, status)
+    session.add(newTask)
+    session.commit()
+
+    return jsonify({"msg": "Task added successfully"}), 200
 
 if __name__ == "__main__":
     app.run(debug=True)

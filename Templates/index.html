@@ -13,6 +13,7 @@
             z-index: 999;
         }
     </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.7/dist/sweetalert2.min.css">
 </head>
 <body>
     <h1>To Do Lists</h1>
@@ -72,6 +73,7 @@
                 // Get the form data
                 var name = $('#name').val();
                 var description = $('#description').val();
+                var csrfToken = '{{ csrf_token() }}'
                 // Make a POST request to the add task endpoint
                 $.ajax({
                     url: '/add-task',
@@ -81,16 +83,33 @@
                         description: description,
                         status: false
                     },
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    },
                     success: function(response) {
-                        // If the request is successful, reload the page
-                        window.location.href = '/';
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Task added successfully!',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                        // Reload the page
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1000);
                     },
                     error: function(error) {
-                        console.log(error);
+                        Swal.fire({
+                            title: 'Error!',
+                            text: error.responseJSON.msg,
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
                     }
                 });
             });
         });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.7/dist/sweetalert2.min.js"></script>
 </body>
 </html>

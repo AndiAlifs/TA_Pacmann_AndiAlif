@@ -21,12 +21,16 @@
                 event.preventDefault();
                 var email = $('#email').val();
                 var password = $('#password').val();
+                var csrfToken = '{{ csrf_token() }}'
                 $.ajax({
                     url: '/login',
                     method: 'post',
                     data: {
                         email: email,
                         password: password
+                    },
+                    headers: {
+                        'X-CSRFToken': csrfToken
                     },
                     success: function(response) {
                         Swal.fire({
@@ -57,7 +61,6 @@
             });
         });
     </script>
-    <!-- Include SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.7/dist/sweetalert2.min.js"></script>
 </body>
 </html>
