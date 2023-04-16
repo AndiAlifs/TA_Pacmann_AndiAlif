@@ -111,7 +111,10 @@ def index_task():
     return render_template("index.html", allTask=allTask)
 
 @app.route("/add-task", methods=["POST", "GET"])
+@jwt_required(optional=True)
 def add_task():
+    if get_jwt_identity() is None:
+        return redirect("/")
     if request.method == "POST":
         name = request.form["name"]
         description = request.form["description"]
@@ -126,12 +129,18 @@ def add_task():
         return render_template("add_task.html")
 
 @app.route("/edit-task/<int:id>", methods=["GET"])
+@jwt_required(optional=True)
 def edit_task(id):
+    if get_jwt_identity() is None:
+        return redirect("/")
     task = session.query(Task).filter_by(id=id).first()
     return render_template("edit_task.html", task=task)
 
 @app.route("/update-task/<int:id>", methods=["POST"])
+@jwt_required(optional=True)
 def update_task(id):
+    if get_jwt_identity() is None:
+        return redirect("/")
     name = request.form["name"]
     description = request.form["description"]
     status = request.form["status"]
@@ -145,7 +154,10 @@ def update_task(id):
     return jsonify({"msg": "Task updated successfully"}), 200
 
 @app.route("/done-task/<int:id>", methods=["PUT"])
+@jwt_required(optional=True)
 def done_task(id):
+    if get_jwt_identity() is None:
+        return redirect("/")
     task = session.query(Task).filter_by(id=id).first()
     task.status = not task.status
     session.commit()
@@ -153,7 +165,10 @@ def done_task(id):
     return jsonify({"msg": "Task updated successfully"}), 200
 
 @app.route("/delete-task/<int:id>", methods=["DELETE"])
+@jwt_required(optional=True)
 def delete_task(id):
+    if get_jwt_identity() is None:
+        return redirect("/")
     task = session.query(Task).filter_by(id=id).first()
     session.delete(task)
     session.commit()
