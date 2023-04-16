@@ -1,17 +1,18 @@
 from flask import Flask, jsonify, request, render_template, redirect, url_for
 from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, jwt_required, JWTManager
 from flask_wtf.csrf import CSRFProtect
-
 from flask_sqlalchemy import SQLAlchemy
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine, Column, Integer, String
-
 from Model.User import User
+
 from Model.Task import Task
 
 import env # This is the file where I store my environment variables
+
+import hashlib
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = env.SECRET_KEY
@@ -71,6 +72,8 @@ def register():
         if foundEmail is not None:
             return jsonify({"msg": "Email already exists"}), 401
 
+        password = hashlib.sha256(password.encode()).hexdigest()
+
         newUser = User(name, email, password)
         session.add(newUser)
         session.commit()
@@ -87,6 +90,7 @@ def login():
     if request.method == "POST":
         email = request.form["email"]
         password = request.form["password"]
+        password = hashlib.sha256(password.encode()).hexdigest()
 
         foundEmail = session.query(User).filter_by(email=email).first()
         if foundEmail is None:
@@ -110,24 +114,27 @@ def index_task():
     allTask = session.query(Task).order_by("id").all()
     return render_template("index.html", allTask=allTask)
 
-@app.route("/add-task", methods=["POST", "GET"])
+@app.route("/add-new-task", methods=["GET"])
 @jwt_required(optional=True)
-def add_task():
+def add_new_task():
     if get_jwt_identity() is None:
         return redirect("/")
-    if request.method == "POST":
-        name = request.form["name"]
-        description = request.form["description"]
-        status = request.form["status"]
+    return render_template("add_task.html")
 
-        newTask = Task(name, description, status)
-        session.add(newTask)
-        session.commit()
 
-        return jsonify({"msg": "Task added successfully"}), 200
-    else:
-        return render_template("add_task.html")
+@app.route("/add-task", methods=["POST"])
+def add_task():
+    name = request.form["name"]
+    description = request.form["description"]
+    status = request.form["status"]
 
+    newTask = Task(name, description, status)
+    session.add(newTask)
+    session.commit()
+
+    return jsonify({"msg": "Task added successfully"}), 200
+
+    
 @app.route("/edit-task/<int:id>", methods=["GET"])
 @jwt_required(optional=True)
 def edit_task(id):
@@ -137,10 +144,7 @@ def edit_task(id):
     return render_template("edit_task.html", task=task)
 
 @app.route("/update-task/<int:id>", methods=["POST"])
-@jwt_required(optional=True)
 def update_task(id):
-    if get_jwt_identity() is None:
-        return redirect("/")
     name = request.form["name"]
     description = request.form["description"]
     status = request.form["status"]
@@ -154,10 +158,7 @@ def update_task(id):
     return jsonify({"msg": "Task updated successfully"}), 200
 
 @app.route("/done-task/<int:id>", methods=["PUT"])
-@jwt_required(optional=True)
 def done_task(id):
-    if get_jwt_identity() is None:
-        return redirect("/")
     task = session.query(Task).filter_by(id=id).first()
     task.status = not task.status
     session.commit()
@@ -165,10 +166,7 @@ def done_task(id):
     return jsonify({"msg": "Task updated successfully"}), 200
 
 @app.route("/delete-task/<int:id>", methods=["DELETE"])
-@jwt_required(optional=True)
 def delete_task(id):
-    if get_jwt_identity() is None:
-        return redirect("/")
     task = session.query(Task).filter_by(id=id).first()
     session.delete(task)
     session.commit()
