@@ -24,4 +24,3 @@ class Task(Base):
             'description': self.description,
             'status': self.status
         }
-

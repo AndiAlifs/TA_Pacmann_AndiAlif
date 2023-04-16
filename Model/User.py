@@ -24,6 +24,3 @@ class User(Base):
             'email': self.email,
             'password': self.password
         }
-
-        
-
