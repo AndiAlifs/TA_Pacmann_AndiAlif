@@ -54,6 +54,7 @@
                     event.preventDefault();
                     var name = $('#name').val();
                     var description = $('#description').val();
+                    var status = $('#status').val();
                     var csrfToken = '{{ csrf_token() }}'
                     $.ajax({
                         url: '/update-task/'+{{ task.id }},
@@ -61,7 +62,7 @@
                         data: {
                             name: name,
                             description: description,
-                            status: false
+                            status: status
                         },
                         headers: {
                         'X-CSRFToken': csrfToken
