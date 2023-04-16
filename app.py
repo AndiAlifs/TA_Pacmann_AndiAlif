@@ -56,6 +56,29 @@ def home():
 def register_page():
     return render_template("register.html")
 
+@app.route("/register", methods=["POST", "GET"])
+def register():
+    if request.method == "POST":
+        name = request.form["name"]
+        email = request.form["email"]
+        password = request.form["password"]
+        confirm_password = request.form["confirm_password"]
+
+        if password != confirm_password:
+            return jsonify({"msg": "Password not match"}), 401
+
+        foundEmail = session.query(User).filter_by(email=email).first()
+        if foundEmail is not None:
+            return jsonify({"msg": "Email already exists"}), 401
+
+        newUser = User(name, email, password)
+        session.add(newUser)
+        session.commit()
+
+        return jsonify({"msg": "User registered successfully"}), 200
+    else:
+        return register_page() 
+
 def login_page():
     return render_template("login.html")
     
@@ -84,7 +107,7 @@ def logout():
     return jsonify(logged_out_as=current_user), 200
 
 def index_task():
-    allTask = session.query(Task).all()
+    allTask = session.query(Task).order_by("id").all()
     return render_template("index.html", allTask=allTask)
 
 @app.route("/add-task", methods=["POST", "GET"])
@@ -102,9 +125,10 @@ def add_task():
     else:
         return render_template("add_task.html")
 
+@app.route("/edit-task/<int:id>", methods=["GET"])
 def edit_task(id):
     task = session.query(Task).filter_by(id=id).first()
-    return render_template("edit.html", task=task)
+    return render_template("edit_task.html", task=task)
 
 @app.route("/update-task/<int:id>", methods=["POST"])
 def update_task(id):
@@ -120,7 +144,15 @@ def update_task(id):
 
     return jsonify({"msg": "Task updated successfully"}), 200
 
-@app.route("/delete-task/<int:id>", methods=["POST"])
+@app.route("/done-task/<int:id>", methods=["PUT"])
+def done_task(id):
+    task = session.query(Task).filter_by(id=id).first()
+    task.status = not task.status
+    session.commit()
+
+    return jsonify({"msg": "Task updated successfully"}), 200
+
+@app.route("/delete-task/<int:id>", methods=["DELETE"])
 def delete_task(id):
     task = session.query(Task).filter_by(id=id).first()
     session.delete(task)

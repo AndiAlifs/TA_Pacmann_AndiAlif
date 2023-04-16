@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Add Tasks</title>
+        <!-- Include Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+        <style>
+            /* Custom CSS for floating button */
+            .floating-button {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                z-index: 999;
+            }
+        </style>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.7/dist/sweetalert2.min.css">
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand display-1 ml-5" href="/">To-Do List</a>
+            <a class="nav-link" href="#" id="logoutButton">Logout</a>
+        </nav>
+
+        <div class="container mt-4">
+            <form id="updateTaskForm">
+                <div class="form-group">
+                    <label for="name">Task Name</label>
+                    <input type="text" class="form-control" id="name" name="name" required value="{{task.name}}">
+                </div>
+                <div class="form-group">
+                    <label for="description">Task Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="3" required>{{task.description}}</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="status">Task Status</label>
+                    <select class="form-control" id="status" name="status">
+                        <option value="true" {% if task.status %}selected{% endif %}>Done</option>
+                        <option value="false" {% if not task.status %}selected{% endif %}>Not Done</option>
+                    </select>
+                </div>
+                <button class="btn btn-outline-danger" id="cancelButton">Cancel</button>
+                <button type="submit"  class="btn btn-primary">Save</button>
+            </form>
+        </div>
+
+        
+        <!-- Include Bootstrap, jQuery, and Font Awesome JavaScript -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+        <script>
+            $(document).ready(function () {
+                $('#updateTaskForm').on('submit', function (event) {
+                    event.preventDefault();
+                    var name = $('#name').val();
+                    var description = $('#description').val();
+                    var csrfToken = '{{ csrf_token() }}'
+                    $.ajax({
+                        url: '/update-task/'+{{ task.id }},
+                        method: 'post',
+                        data: {
+                            name: name,
+                            description: description,
+                            status: false
+                        },
+                        headers: {
+                        'X-CSRFToken': csrfToken
+                        },
+                        success: function (response) {
+                            Swal.fire({title: 'Success!', text: 'Task updated successfully!', icon: 'success', confirmButtonText: 'OK'});
+                            setTimeout(function () {
+                                document.location.href = '/';
+                            }, 1500);
+                        },
+                        error: function (error) {
+                            Swal.fire({title: 'Error!', text: error.responseJSON.msg, icon: 'error', confirmButtonText: 'OK'});
+                        }
+                    });
+                });
+
+                $('#cancelButton').on('click', function (event) {
+                    event.preventDefault();
+                    document.location.href = '/';
+                });
+            });
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.7/dist/sweetalert2.min.js"></script>
+    </body>
+</html>
