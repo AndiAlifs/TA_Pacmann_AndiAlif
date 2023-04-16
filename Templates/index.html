@@ -24,7 +24,12 @@
         <div class="container mt-4">
             {% for task in allTask %}
                 <!-- make a card div -->
+                {% if task.status %}
+                <div class="card mb-2 text-white bg-dark">
+                {% else %}
                 <div class="card mb-2">
+                {% endif %}
+
                     <div class="card-header">
                         {% if task.status %}
                             <h2>
@@ -37,21 +42,21 @@
                         {% endif %}
                     </div>
                     <div class="card-body">
+                        <button class="btn btn-warning" onclick="editTask({{ task.id }});">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteTask({{ task.id }});">Delete</button>
+                            {% if task.status %}
+                        <button class="btn btn-secondary" onclick="doneTask({{ task.id }});">Marks as Not Done</button>
+                        {% else %}
+                            <button class="btn btn-primary" onclick="doneTask({{ task.id }});">Marks as Done</button>
+                        {% endif %}
                         {% if task.status %}
-                            <p class="card-text">
+                            <p class="card-text mt-3">
                                 <strike>
                                     {{ task.description }}
                                 </strike>
                             </p>
                         {% else %}
-                            <p class="card-text">{{ task.description }}</p>
-                        {% endif %}
-                        <button class="btn btn-warning" onclick="editTask({{ task.id }});">Edit</button>
-                        <button class="btn btn-danger" onclick="deleteTask({{ task.id }});">Delete</button>
-                        {% if task.status %}
-                            <button class="btn btn-secondary" onclick="doneTask({{ task.id }});">Marks as Not Done</button>
-                        {% else %}
-                            <button class="btn btn-primary" onclick="doneTask({{ task.id }});">Marks as Done</button>
+                            <p class="card-text mt-3">{{ task.description }}</p>
                         {% endif %}
                     </div>
                 </div>
@@ -60,7 +65,7 @@
 
         <button id="addTaskButton" class="btn btn-primary floating-button">
             <i class="fas fa-plus"></i>
-        </button>
+        </button>   
 
         <!-- Include Bootstrap, jQuery, and Font Awesome JavaScript -->
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
