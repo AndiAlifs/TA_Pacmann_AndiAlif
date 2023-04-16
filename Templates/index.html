@@ -47,7 +47,7 @@
                             {% if task.status %}
                         <button class="btn btn-secondary" onclick="doneTask({{ task.id }});">Marks as Not Done</button>
                         {% else %}
-                            <button class="btn btn-primary" onclick="doneTask({{ task.id }});">Marks as Done</button>
+                            <button class="btn btn-primary" onclick="doneTask({{ task.id }});">Mark as Done</button>
                         {% endif %}
                         {% if task.status %}
                             <p class="card-text mt-3">
@@ -74,7 +74,7 @@
         <script>
             $(document).ready(function () {
                 $('#addTaskButton').on('click', function (event) {
-                    document.location.href = '/add-task';
+                    document.location.href = '/add-new-task';
                 });
 
                 $('#logoutButton').on('click', function (event) {
