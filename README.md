@@ -5,6 +5,7 @@ TA_Pacmann_AndiAlif is a web-based to-do list application built on Flask Python.
 
 ## Directory Structure
 
+```bash
 TA_Pacmann_AndiAlif/ 
 ├── Model/ 
 │ └── Task.py
@@ -18,6 +19,7 @@ TA_Pacmann_AndiAlif/
 ├── app.py 
 ├── env_copy.py 
 └── requirement.txt
+```
 
 - `Model/`: This is a directory contain  `Model` object that interacted with database. There are two model, there are `Task.py` and `User.py`.
 - `Templates/`: This is a directory contain all the html file that used in this application. There are five html file, there are `add_task.html`, `edit_task.html`, `index.html`, `login.html`, and `register.html`.
